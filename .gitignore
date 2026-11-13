@@ -1,0 +1,21 @@
+# Local datasets and experiment artifacts
+data/
+/FactoryVision_DataSet/
+checkpoints/
+runs/
+*.pth
+*.pt
+*.zip
+
+# Local course reference files
+/FactoryVision_Final_Project.pdf
+/FactoryVision_Stage_Guide.md
+/FactoryVision_Stage_Guide.html/
+/FactoryVision_Team_Plan.html/
+
+# Local Python environments and caches
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ipynb_checkpoints/
