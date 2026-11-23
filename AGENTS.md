@@ -104,10 +104,12 @@
 
 | 項目 | 全隊統一版本 |
 |---|---|
-| Python | `TODO`（例如 3.11.x） |
-| `torch` / `torchvision` | `TODO` |
-| `numpy` / `scikit-learn` / `matplotlib` / `Pillow` | `TODO` |
-| `ultralytics`（只有 Stage 3） | `TODO` |
+| Python | `3.12.2` |
+| `torch` / `torchvision` | `2.7.1` / `0.22.1` |
+| `numpy` / `scikit-learn` / `matplotlib` / `Pillow` | `2.2.6` / `1.7.2` / `3.10.8` / `12.1.1` |
+| `ultralytics`（只有 Stage 3） | `8.3.239` |
+
+Team05 的 Windows 機器已驗證 PyTorch 的 CUDA 11.8 wheel、RTX 2060 與 CPU。安裝指令、資料核對及各 Stage 交接見 [共用程式說明](common/README.md)。
 
 - 各 Stage 的 `requirements.txt` 用**同一組版本**，只列該 Stage 真的有用到的套件。
 - 要加新套件：先在群組講，D 把版本加進上表，再加進 `requirements.txt`。

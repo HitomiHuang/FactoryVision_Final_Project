@@ -1,2 +1,6 @@
-# List one dependency actually used by this stage per line as package==version.
-# Use the team versions recorded in AGENTS.md section 6.1.
+torch==2.7.1
+torchvision==0.22.1
+numpy==2.2.6
+scikit-learn==1.7.2
+matplotlib==3.10.8
+Pillow==12.1.1

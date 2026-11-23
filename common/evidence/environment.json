@@ -1,0 +1,44 @@
+{
+  "platform": "Windows",
+  "python": "3.12.2",
+  "cpu": "Intel(R) Core(TM) i7-10750H CPU @ 2.60GHz",
+  "gpu": "NVIDIA GeForce RTX 2060",
+  "nvidia_driver": "496.76",
+  "torch_cuda_build": "11.8",
+  "packages": {
+    "torch": "2.7.1+cu118",
+    "torchvision": "0.22.1+cu118",
+    "numpy": "2.2.6",
+    "scikit-learn": "1.7.2",
+    "matplotlib": "3.10.8",
+    "Pillow": "12.1.1",
+    "ultralytics": "8.3.239"
+  },
+  "pip_check": "No broken requirements found.",
+  "runtime_checks": {
+    "cpu": {
+      "convolution_output": [
+        1,
+        8,
+        30,
+        30
+      ],
+      "backward_finite": true,
+      "nms_kept_indices": [
+        0
+      ]
+    },
+    "cuda": {
+      "convolution_output": [
+        1,
+        8,
+        30,
+        30
+      ],
+      "backward_finite": true,
+      "nms_kept_indices": [
+        0
+      ]
+    }
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "source": "Team05_Stage1_handoff.zip",
+  "split": "classification/validation",
+  "solver": "full",
+  "fit_dtype": "float64",
+  "original_package_sha256": "ed8afc90a35c4d861fb2af0bffa9b992eb817661a0fda966f38834f797b8121a",
+  "packed_checkpoint_sha256": "9a5912a3c33d6a4131061f8f9011f7656f9e6d53a30a45ea2568dded00245fe6",
+  "validation_images": 270,
+  "identical_predictions_after_clean_cpu_refit": 270,
+  "correct_predictions": 206,
+  "validation_predictions_sha256_uint8": "2f5dd4d193fa9a386b5e88236bdb36da529fbb704cc85a564d9d408a8e9343a4",
+  "metrics": {
+    "accuracy": 0.762962962962963,
+    "macro_precision": 0.7920242415617068,
+    "macro_recall": 0.762962962962963,
+    "macro_f1": 0.7608416938196529
+  },
+  "current_package_sha256": "c9cf28d4435b9d273eb73e485ef301deb5945b56c21f8737e2d5f127f43a83dc",
+  "updated_cli_check": {
+    "environment": "Existing pinned project environment, fresh ZIP extraction, CPU",
+    "python": "3.12.2",
+    "default_kernel": "rbf",
+    "default_gamma": "scale",
+    "validation_images": 270,
+    "identical_predictions_after_refit": 270,
+    "correct_predictions": 206,
+    "macro_f1": 0.7608416938196529,
+    "nondefault_settings_verified_in_model_and_json": [
+      {
+        "kernel": "rbf",
+        "gamma": 0.02
+      },
+      {
+        "kernel": "linear",
+        "gamma": "auto"
+      }
+    ]
+  }
+}

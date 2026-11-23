@@ -1,0 +1,19 @@
+{
+  "team_id": "Team05",
+  "stage": 1,
+  "model_name": null,
+  "input_size": null,
+  "class_order": [
+    "crazing",
+    "inclusion",
+    "patches",
+    "pitted_surface",
+    "rolled_in_scale",
+    "scratches"
+  ],
+  "normalization_mean": null,
+  "normalization_std": null,
+  "seed": 42,
+  "improvement_methods": null,
+  "checkpoint_file": "stage1_model.pth"
+}

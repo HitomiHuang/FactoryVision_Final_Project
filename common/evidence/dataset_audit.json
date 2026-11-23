@@ -1,0 +1,90 @@
+{
+  "classification": {
+    "splits": {
+      "train": {
+        "images": 1260,
+        "formats": {
+          "PNG L 200x200": 1260
+        },
+        "images_per_class": {
+          "crazing": 210,
+          "inclusion": 210,
+          "patches": 210,
+          "pitted_surface": 210,
+          "rolled_in_scale": 210,
+          "scratches": 210
+        }
+      },
+      "validation": {
+        "images": 270,
+        "formats": {
+          "PNG L 200x200": 270
+        },
+        "images_per_class": {
+          "crazing": 45,
+          "inclusion": 45,
+          "patches": 45,
+          "pitted_surface": 45,
+          "rolled_in_scale": 45,
+          "scratches": 45
+        }
+      }
+    },
+    "identical_files_across_splits": [
+      {
+        "sha256": "b0f851cb680c1f9d0a656944df62c16a97820b0cde0a81f2f78a4669df0757dd",
+        "train": [
+          "classification/train/patches/TRN_0504.png"
+        ],
+        "validation": [
+          "classification/validation/patches/VAL_0101.png"
+        ]
+      }
+    ]
+  },
+  "detection": {
+    "splits": {
+      "train": {
+        "images": 1260,
+        "formats": {
+          "PNG RGB 200x200": 1260
+        },
+        "boxes": 2924,
+        "boxes_per_class": {
+          "crazing": 487,
+          "patches": 598,
+          "inclusion": 716,
+          "pitted_surface": 299,
+          "rolled_in_scale": 435,
+          "scratches": 389
+        }
+      },
+      "validation": {
+        "images": 270,
+        "formats": {
+          "PNG RGB 200x200": 270
+        },
+        "boxes": 641,
+        "boxes_per_class": {
+          "crazing": 102,
+          "inclusion": 149,
+          "patches": 152,
+          "pitted_surface": 66,
+          "rolled_in_scale": 93,
+          "scratches": 79
+        }
+      }
+    },
+    "identical_files_across_splits": [
+      {
+        "sha256": "7fcda1f08e9dd14693551fe2dca3a4565ecef38f1d5d106c227a99a92293de1e",
+        "train": [
+          "detection/train/images/TRN_0504.png"
+        ],
+        "validation": [
+          "detection/validation/images/VAL_0101.png"
+        ]
+      }
+    ]
+  }
+}

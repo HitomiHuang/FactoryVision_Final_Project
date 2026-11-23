@@ -1,0 +1,20 @@
+{
+  "team_id": "Team05",
+  "stage": 3,
+  "detector": null,
+  "pretrained_source": null,
+  "input_size": null,
+  "class_order": [
+    "crazing",
+    "inclusion",
+    "patches",
+    "pitted_surface",
+    "rolled_in_scale",
+    "scratches"
+  ],
+  "confidence_threshold": null,
+  "nms_iou_threshold": null,
+  "bbox_format": "xyxy_pixel",
+  "seed": 42,
+  "checkpoint_file": "stage3_model.pt"
+}
