@@ -6,11 +6,11 @@
 
 | 目錄 | 負責人 | 實驗與交付重點 |
 |---|---|---|
-| [`stage1/`](stage1/) | A | PCA + SVM、自建 CNN。選兩種不同的改善方法，跑完 E1 Baseline、E2 +A、E3 +B、E4 +A+B。Flip 與 Rotation 合計只算一種 Data Augmentation。 |
-| [`stage2/`](stage2/) | B | 兩個不同的 Architecture Family × 兩種 Fine-tuning Strategy，四組都跑。記錄 pretrained 權重來源、策略設定、總參數量、可訓練參數量與模型大小。 |
-| [`stage3/`](stage3/) | C | 至少訓練一個 Detector，繳交至少 10 張 Ground Truth vs Prediction 對照圖及至少 5 個 FP、FN 或定位不準案例，分析 Confidence Threshold 對 Precision 和 Recall 的影響。 |
-| [`common/`](common/) | D | 維護共用程式與 [交件範本](common/templates/)，提供 Stage 1 的 PCA + SVM。共用模組由 D 同步到 Stage 1、2 的 `src/`。 |
-| [`final_report/`](final_report/) | D 彙整，A–C 提供各 Stage 內容 | 用正式提交的結果與 Final Model 做跨 Stage 失敗分析、部署比較與最終決策。七章順序見目錄內的 README。 |
+| [`stage1/`](stage1/) | 葉文賢（A） | PCA + SVM、自建 CNN。選兩種不同的改善方法，跑完 E1 Baseline、E2 +A、E3 +B、E4 +A+B。Flip 與 Rotation 合計只算一種 Data Augmentation。 |
+| [`stage2/`](stage2/) | 李安爵（B） | 兩個不同的 Architecture Family × 兩種 Fine-tuning Strategy，四組都跑。記錄 pretrained 權重來源、策略設定、總參數量、可訓練參數量與模型大小。 |
+| [`stage3/`](stage3/) | 謝允柔（C） | 至少訓練一個 Detector，繳交至少 10 張 Ground Truth vs Prediction 對照圖及至少 5 個 FP、FN 或定位不準案例，分析 Confidence Threshold 對 Precision 和 Recall 的影響。 |
+| [`common/`](common/) | 黃怡禎（D） | 維護共用程式與 [交件範本](common/templates/)，提供 Stage 1 的 PCA + SVM。共用模組由 D 同步到 Stage 1、2 的 `src/`。 |
+| [`final_report/`](final_report/) | 黃怡禎（D）彙整，A–C 提供各 Stage 內容 | 用正式提交的結果與 Final Model 做跨 Stage 失敗分析、部署比較與最終決策。七章順序見目錄內的 README。 |
 
 三個 Stage 可並行開工。團隊先確認 iLearning 組別、截止日與可用 GPU。D 確認 `AGENTS.md` 第 6.1 節的統一環境版本，並依團隊時程在第 3 天交付共用介面給 A、B。
 
