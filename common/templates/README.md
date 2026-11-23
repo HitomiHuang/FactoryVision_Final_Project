@@ -1,6 +1,6 @@
 # Team05 · Stage 交件 README 範本
 
-此檔供 A、B、C 完成實驗後建立各自的交件 README。保留該 Stage 的段落並填入實際值。三份 `stageN.config.json` 已對應課程 PDF 第 28 頁，Stage 根目錄使用的檔名為 `config.json`。範本的 null 待最終模型確定後填寫，無 NMS 的 detector 依規定保留 `nms_iou_threshold: null`。
+實驗完成後，Stage 1 由葉文賢（A）、Stage 2 由李安爵（B）、Stage 3 由謝允柔（C）使用此範本撰寫各自的交件 README。保留該 Stage 的段落並填入實際值。三份 `stageN.config.json` 已對應課程 PDF 第 28 頁，Stage 根目錄使用的檔名為 `config.json`。範本的 null 待最終模型確定後填寫，無 NMS 的 detector 依規定保留 `nms_iou_threshold: null`。
 
 ## 環境與安裝
 

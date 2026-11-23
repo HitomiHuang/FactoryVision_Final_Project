@@ -4,9 +4,9 @@
 
 | 交給 | 現在可以執行 | 組員接續 |
 |---|---|---|
-| [A 的操作說明](handoff/Stage1.md) | 計算 train mean / std、驗證灰階 loader、重跑 PCA + SVM，取得指標與錯分檔名 | 自建 CNN、E1–E4、選模與 Stage 1 報告 |
-| [B 的操作說明](handoff/Stage2.md) | 以三通道讀取官方 split，共用分類評估、曲線、混淆矩陣、模型大小及推論時間 | 兩個模型家族 × 兩個策略，共四組實驗 |
-| [C 的操作說明](handoff/Stage3.md) | 檢查標註並建立 Ultralytics 資料目錄。取得六類 detector checkpoint 後，一個指令即可匯出對照圖、失敗案例與門檻分析 | 訓練 detector、依 validation mAP@0.5 選模，回報正式評估 |
+| [Stage 1 · 葉文賢（A）](handoff/Stage1.md) | 計算 train mean / std、驗證灰階 loader、重跑 PCA + SVM，取得指標與錯分檔名 | 自建 CNN、E1–E4、選模與 Stage 1 報告 |
+| [Stage 2 · 李安爵（B）](handoff/Stage2.md) | 以三通道讀取官方 split，共用分類評估、曲線、混淆矩陣、模型大小及推論時間 | 兩個模型家族 × 兩個策略，共四組實驗 |
+| [Stage 3 · 謝允柔（C）](handoff/Stage3.md) | 檢查標註並建立 Ultralytics 資料目錄。取得六類 detector checkpoint 後，一個指令即可匯出對照圖、失敗案例與門檻分析 | 訓練 detector、依 validation mAP@0.5 選模，回報正式評估 |
 
 第五組對應 `Team05`。環境採 Python 3.12.2，PyTorch 2.7.1 與 torchvision 0.22.1。在本機 NVIDIA GeForce RTX 2060（driver 496.76）及 CPU 均已跑過卷積、反向傳播和 NMS。各 Stage 的直接依賴列在各自的 `requirements.txt`。[安裝與驗證指令](handoff/SETUP.md) · [版本表](../AGENTS.md)
 
@@ -36,13 +36,13 @@ python common/audit_data.py --data_root FactoryVision_DataSet/STUDENT_PUBLIC --o
 | `model_stats(model, ckpt_path)` | 回傳 `params, trainable_params, checkpoint_mb`。大小讀取實際檔案，以 bytes ÷ 1024² 計算。 |
 | `measure_latency(model, input_size, device, runs)` | 回傳每張平均毫秒數。支援正方形邊長或 `(C, H, W)`。報告使用 batch 1、暖機 10 次、`runs=100`，CUDA 計時同步。適用於 A、B 的模型 forward。 |
 
-更新時先改 `common/` 正本。A、B 同步 `data.py`、`seed.py`、`metrics.py`、`check_classification.py`，另把 `pca_svm.py` 給 A。C 同步 `prepare_yolo.py`、`visualize.py`、`seed.py`。後續更新 Stage 的 config 時保留組員已填的實驗設定。
+黃怡禎（D）負責維護 `common/` 正本，並將共用程式同步到各 Stage 的 `src/`。Stage 1、2 共用 `data.py`、`seed.py`、`metrics.py`、`check_classification.py`，Stage 1 另有 `pca_svm.py`。Stage 3 使用 `prepare_yolo.py`、`visualize.py`、`seed.py`。後續更新 Stage 的 config 時保留組員已填的實驗設定。
 
 ## 結果與交付依據
 
 - Stage 1 的 PCA + SVM 在官方 validation 的 Accuracy 為 0.7630，Macro Precision 為 0.7920，Macro Recall 為 0.7630，Macro F1 為 0.7608。以完整 float64 SVD 擬合 PCA，在兩個安裝環境和不同 CPU 執行緒設定下重訓，270 張預測、錯分檔名和混淆矩陣一致。[實驗 JSON](../stage1/results/pca_svm.json) · [混淆矩陣](../stage1/results/pca_svm_cm.png) · [交接 ZIP 解壓重訓紀錄](evidence/pca_reproduction.json)
 - 固定猜第一類的 loader 檢查得到 `45/270 = 0.166667`，一通道和三通道的混淆矩陣總和皆為 270。這是評估程式的已知答案檢查。A、B 的正式模型由各自的 `train.py` 與 `evaluate.py` 實作。
 - Stage 3 已用 Ultralytics 讀取全部影像與標註，並以未訓練的六類架構走過 270 張 validation 的圖檔輸出流程。C 的正式結果、mAP 與圖表須用自行訓練後選定的 checkpoint 產生。
-- 課程提供的 `FactoryVision_Final_Project.pdf` 第 5、8、21–22、24–29 頁列出資料用途、實驗與交件要求。D 的分工見組內的 `FactoryVision_Team_Plan.html`，共用介面及格式見[團隊規則](../AGENTS.md)。
+- 課程提供的 `FactoryVision_Final_Project.pdf` 第 5、8、21–22、24–29 頁列出資料用途、實驗與交件要求。黃怡禎（D）的彙整分工見組內的 `FactoryVision_Team_Plan.html`，共用介面及格式見[團隊規則](../AGENTS.md)。
 
 在 repo 根目錄執行 `python common/package_handoff.py` 可重建三份組內交接 ZIP。A 的套件同時包含這次實測的 PCA checkpoint，重新打包前需先執行 A 的 baseline 指令。正式 Stage ZIP 由各負責人完成模型與報告後製作。

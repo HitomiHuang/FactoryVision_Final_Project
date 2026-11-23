@@ -1,4 +1,4 @@
-# Team05 · Stage 1 給 A 的交接
+# Team05 · Stage 1 交接給葉文賢（A）
 
 在 Stage 1 工作目錄開啟 PowerShell，依環境說明設定 `$py` 和 `$root`。下列三個指令已用課程資料跑過。[安裝環境](SETUP.md)
 
@@ -20,4 +20,4 @@
 
 `results/pca_svm.json` 保留未四捨五入的指標、設定、混淆矩陣與 64 筆錯分檔名，圖在 `results/pca_svm_cm.png`。序列化的模型在 `checkpoints/pca_svm.pkl`，其 SHA-256 記錄於實驗 JSON。SVM 的延遲在 CPU 量測，沒有 CNN 的 epoch 或可訓練權重數，對應欄位使用 JSON null。
 
-接續工作是自建 CNN 的 E1–E4。每個 batch 可用 `for images, labels, filenames in train_loader` 接收。驗證用 `evaluate(model, val_loader, device)["metrics"]["macro_f1"]` 選最佳 epoch。正式 `stage1_model.pth` 是 A 選定的 Improved CNN，最後依該模型填好 `config.json` 並撰寫 Stage 1 報告。
+接續工作是自建 CNN 的 E1–E4。每個 batch 可用 `for images, labels, filenames in train_loader` 接收。驗證用 `evaluate(model, val_loader, device)["metrics"]["macro_f1"]` 選最佳 epoch。正式 `stage1_model.pth` 是葉文賢選定的 Improved CNN，最後依該模型填好 `config.json` 並撰寫 Stage 1 報告。

@@ -12,7 +12,7 @@
 | [`common/`](common/) | 黃怡禎（D） | 維護共用程式與 [交件範本](common/templates/)，提供 Stage 1 的 PCA + SVM。共用模組由 D 同步到 Stage 1、2 的 `src/`。 |
 | [`final_report/`](final_report/) | 黃怡禎（D）彙整，A–C 提供各 Stage 內容 | 用正式提交的結果與 Final Model 做跨 Stage 失敗分析、部署比較與最終決策。七章順序見目錄內的 README。 |
 
-三個 Stage 可並行開工。團隊先確認 iLearning 組別、截止日與可用 GPU。D 確認 `AGENTS.md` 第 6.1 節的統一環境版本，並依團隊時程在第 3 天交付共用介面給 A、B。
+三個 Stage 可並行開工。團隊先確認 iLearning 組別、截止日與可用 GPU。黃怡禎（D）確認 `AGENTS.md` 第 6.1 節的統一環境版本，並依團隊時程在第 3 天交付共用介面給葉文賢（A）與李安爵（B）。
 
 ## 資料集與實驗規則
 
@@ -48,6 +48,6 @@ python src/evaluate.py --data_root ../data/STUDENT_PUBLIC --checkpoint stage1_mo
 - **ZIP 與組別**。將 `XX` 換成 iLearning 的兩位數組別。每個 `TeamXX_StageN.zip` ≤ 1 GB，解壓後只有一層同名根目錄 `TeamXX_StageN/`。
 - **必要檔案**。`stageN_report.pdf`、`config.json`、`requirements.txt`、`README.md`、`src/`（至少有 `model.py`、`train.py`、`evaluate.py`），以及對應的最終 checkpoint `stage1_model.pth`、`stage2_model.pth` 或 `stage3_model.pt`。
 - **乾淨環境重跑**。用 Stage README 的指令安裝依賴並評估。確認 `config.json` 合法、設定與最終 checkpoint 一致，資料由 `--data_root` 傳入，checkpoint 使用 ZIP 內的相對路徑。Stage 3 的 `bbox_format` 為 `"xyxy_pixel"`，模型無需 NMS 時將 `nms_iou_threshold` 設為 `null`。
-- **報告證據**。各 Stage 的圖與實測數字要寫入各自的 PDF，數字對照 `results/*.json`。D 用已正式提交的結果和 Final Model 彙整 `TeamXX_Final_Report.pdf`。
+- **報告證據**。各 Stage 的圖與實測數字要寫入各自的 PDF，數字對照 `results/*.json`。黃怡禎（D）用已正式提交的結果和 Final Model 彙整 `TeamXX_Final_Report.pdf`。
 
 內容整理自課程 Stage 指南（`FactoryVision_Stage_Guide.html`）、四人分工計畫（`FactoryVision_Team_Plan.html`）及 [AGENTS.md](AGENTS.md)。

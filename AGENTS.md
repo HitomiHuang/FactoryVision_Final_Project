@@ -11,14 +11,14 @@
 
 | 資料夾 | 負責人 | 最後變成 |
 |---|---|---|
-| `common/` | D | 共用程式正本 + `templates/` |
-| `stage1/` | A | `TeamXX_Stage1.zip` |
-| `stage2/` | B | `TeamXX_Stage2.zip` |
-| `stage3/` | C | `TeamXX_Stage3.zip` |
-| `final_report/` | D | `TeamXX_Final_Report.pdf` |
+| `common/` | 黃怡禎（D） | 共用程式正本 + `templates/` |
+| `stage1/` | 葉文賢（A） | `TeamXX_Stage1.zip` |
+| `stage2/` | 李安爵（B） | `TeamXX_Stage2.zip` |
+| `stage3/` | 謝允柔（C） | `TeamXX_Stage3.zip` |
+| `final_report/` | 黃怡禎（D） | `TeamXX_Final_Report.pdf` |
 
 - 💡 **只改使用者負責的資料夾。** 不確定使用者是誰、負責哪個 Stage，先問。
-- 💡 `stage1/src/` 和 `stage2/src/` 裡的 `data.py`、`seed.py`、`metrics.py`、`stage1/src/pca_svm.py` 是 `common/` 的**複本，不要直接改**。需要改，請使用者找 D 改 `common/`，再由 D 同步。
+- 💡 `stage1/src/` 和 `stage2/src/` 裡的 `data.py`、`seed.py`、`metrics.py`、`stage1/src/pca_svm.py` 是 `common/` 的**複本，不要直接改**。如需修改，由黃怡禎（D）更新 `common/` 正本並同步對應的複本。
 - 💡 `common/` 函式的名稱和參數已凍結（見第 5 節），不要自行改簽名。
 
 ## 2. 🚨 紅線（違反 → 整個專題最高 0 分，p.33）
@@ -51,7 +51,7 @@
 
 ## 4. 各 Stage 的規則
 
-### Stage 1（A）
+### Stage 1 · 葉文賢（A）
 
 - Baseline CNN 必須 **from scratch**：不可用 pretrained weights，不可用 ResNet / VGG / MobileNet 等既有架構（p.8）。
 - Baseline 只能用 Resize、Tensor Conversion、Normalization（p.8）。
@@ -61,14 +61,14 @@
 - Traditional Baseline（PCA + SVM）在 `src/pca_svm.py`。
 - 資料是 **8-bit 灰階** PNG 200×200；`get_dataloaders(channels=1 或 3)`。
 
-### Stage 2（B）
+### Stage 2 · 李安爵（B）
 
 - 至少 2 種**不同 Architecture Family**（ResNet18 和 ResNet50 算同一家，p.34）× 2 種 Strategy，**4 組全做**（p.14–15）。不可 A 只做 Strategy 1、B 只做 Strategy 2。
 - 記錄 pretrained 來源（p.14）。Partial：列 frozen / trainable layers；Last-k：寫出 k；LoRA：target module、r、alpha、trainable params；L2-SP：係數（p.16）。
 - 要報 Parameter、Trainable Parameter、Model Size（p.17）。
 - 灰階圖要轉 3 通道：`channels=3`。
 
-### Stage 3（C）
+### Stage 3 · 謝允柔（C）
 
 - 至少 1 個 detector（YOLO / Faster R-CNN / SSD / DETR，p.20）。
 - ⚠️ 資料夾叫 `labels_yolo/`，Ultralytics 要的是 `labels/`。💡 **不要改原始資料集**；在 `data/` 下另外建一份整理好的結構（或用 symlink / 複製），並把轉換步驟寫進 `src/` 和 README。
@@ -98,9 +98,9 @@
 
 ## 6. 統一格式（大家做出來要一樣）💡
 
-目的：三個 Stage 的程式、結果、圖、報告長得一樣，D 寫期末報告時可以直接比較。**沒寫到的地方，先照別人已經寫好的 Stage 做；還是不確定就問，不要自創。**
+目的：三個 Stage 的程式、結果、圖、報告長得一樣，黃怡禎（D）彙整期末報告時可以直接比較。**沒寫到的地方，先照別人已經寫好的 Stage 做；還是不確定就問，不要自創。**
 
-### 6.1 環境（D 第 1 天填好，全隊照用）
+### 6.1 環境（黃怡禎於第 1 天填寫，全隊照用）
 
 | 項目 | 全隊統一版本 |
 |---|---|
@@ -112,7 +112,7 @@
 Team05 的 Windows 機器已驗證 PyTorch 的 CUDA 11.8 wheel、RTX 2060 與 CPU。安裝指令、資料核對及各 Stage 交接見 [共用程式說明](common/README.md)。
 
 - 各 Stage 的 `requirements.txt` 用**同一組版本**，只列該 Stage 真的有用到的套件。
-- 要加新套件：先在群組講，D 把版本加進上表，再加進 `requirements.txt`。
+- 要加新套件：先在群組講，由黃怡禎（D）把版本加進上表，再加進 `requirements.txt`。
 - 裝置：`--device` 預設 `auto`（有 CUDA 用 `cuda`，否則 `cpu`）。
 
 ### 6.2 指令列參數名稱（`train.py`、`evaluate.py` 都一樣）
@@ -217,7 +217,7 @@ Team05 的 Windows 機器已驗證 PyTorch 的 CUDA 11.8 wheel、RTX 2060 與 CP
 
 - **不要 commit**：`data/`、`*.pth`、`*.pt`、`*.zip`、`runs/`（已在 `.gitignore`）。模型檔用雲端硬碟分享。
 - **要 commit**：`results/*.json` 和圖。
-- 每人一個 branch，經 PR 合併進 `main`，不要直接 push `main`。PR review：C 看 A、A 看 B、B 看 C。
+- 每人一個 branch，經 PR 合併進 `main`，不要直接 push `main`。Stage 1 的 PR 由謝允柔（C）審查，Stage 2 由葉文賢（A）審查，Stage 3 由李安爵（B）審查。
 - Commit message 用 Conventional Commits，例如 `feat(stage1): add dropout experiment`。
 - **AI 不可自行 commit、push、開 PR、刪 branch**，除非使用者明確要求。
 
