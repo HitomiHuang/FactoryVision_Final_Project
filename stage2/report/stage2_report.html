@@ -1,0 +1,208 @@
+<!doctype html>
+<!--
+  Source of stage2_report.pdf. Build the PDF from the stage2/ folder (macOS):
+  "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless=new --no-pdf-header-footer \
+    --print-to-pdf=stage2_report.pdf "file://$PWD/report/stage2_report.html"
+  Or open this file in Chrome and use Print > Save as PDF.
+  Every number below is copied from results/E1.json to results/E4.json.
+-->
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>Team05 Stage 2 Report</title>
+<style>
+  @page { size: A4; margin: 16mm 15mm; }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+         font-size: 10.5pt; line-height: 1.6; color: #111; margin: 0; }
+  h1 { font-size: 18pt; margin: 0 0 2pt; }
+  .subtitle { margin: 0 0 12pt; color: #444; }
+  h2 { font-size: 13.5pt; border-bottom: 1px solid #999; margin: 16pt 0 6pt; padding-bottom: 2pt; }
+  h3 { font-size: 11.5pt; margin: 10pt 0 4pt; }
+  p, li { text-align: justify; }
+  ul, ol { padding-left: 18pt; margin: 4pt 0; }
+  table { border-collapse: collapse; width: 100%; font-size: 9pt; margin: 4pt 0 10pt; break-inside: avoid; }
+  caption { caption-side: top; text-align: left; font-weight: bold; padding-bottom: 3pt; }
+  th, td { border: 1px solid #888; padding: 2.5pt 5pt; vertical-align: top; }
+  th { background: #eee; }
+  td.n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  figure { margin: 8pt 0 12pt; text-align: center; break-inside: avoid; }
+  figure img { max-width: 100%; }
+  figcaption { font-size: 9pt; text-align: left; margin-top: 3pt; }
+  .errors { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4pt 6pt; }
+  .errors div { font-size: 7.5pt; text-align: center; line-height: 1.35; }
+  .errors img { width: 32mm; height: 32mm; display: block; margin: 0 auto 2pt; }
+  .errors code { font-size: 7pt; }
+  code { font-family: Menlo, Consolas, monospace; font-size: 8.8pt; }
+  .todo { background: #fff3a0; }
+  .page-break { break-before: page; }
+</style>
+</head>
+<body>
+
+<h1>Team05 · Stage 2 Report：Transfer Learning Challenge</h1>
+<p class="subtitle">比較 CNN Architecture 與 Fine-tuning Strategy，找出最適合部署的鋼材表面瑕疵分類模型　｜　負責人：李安爵（B）</p>
+
+<h2>1. 實驗目的</h2>
+<p>Stage 2 比較不同 CNN Architecture 與 Fine-tuning Strategy 對鋼材表面瑕疵分類的影響，並從分類表現與部署成本兩方面選出最終分類模型。本 Stage 採 2 × 2 設計：兩個不同的 Architecture Family（ResNet18、DenseNet121）各自搭配兩種策略（Feature Extraction、Full Fine-tuning），共 4 組實驗（E1–E4）。四組使用相同的資料分割、前處理、超參數與評估流程，只有 learning rate 依策略設定，因此結果差異可歸因於架構與策略。</p>
+
+<h2>2. 資料與評估方式</h2>
+<ul>
+  <li><b>資料</b>：課程提供的 FactoryVision Classification Public Dataset，共 6 類，類別順序固定為 crazing、inclusion、patches、pitted_surface、rolled_in_scale、scratches。影像為 200 × 200 的 8-bit 灰階 PNG。</li>
+  <li><b>分割</b>：沿用官方分割，train 1,260 張（每類 210 張）、validation 270 張（每類 45 張）。只用 train 訓練；validation 只用於選擇 epoch 與比較模型。未使用外部資料，也未使用網路上已 fine-tune 的 checkpoint。</li>
+  <li><b>前處理</b>（訓練與驗證相同，未使用 data augmentation）：灰階影像轉為 3 通道（三個通道數值相同）→ <code>Resize((224, 224))</code>（bilinear）→ <code>ToTensor()</code> → <code>Normalize</code>，使用 ImageNet pretrained 權重的官方 mean <code>[0.485, 0.456, 0.406]</code> 與 std <code>[0.229, 0.224, 0.225]</code>。</li>
+  <li><b>評估指標</b>：主要指標為 Macro F1，另報告 Accuracy、Macro Precision、Macro Recall 與 Confusion Matrix；部署成本記錄 Params、Trainable Params、checkpoint 大小與推論時間（Latency）。</li>
+  <li><b>資料限制</b>：官方分割中 train 的 <code>TRN_0504.png</code> 與 validation 的 <code>patches/VAL_0101.png</code> 內容完全相同（團隊以 SHA-256 核對）。本 Stage 保留官方分割，未移除或修改。</li>
+</ul>
+
+<h2>3. 方法</h2>
+<h3>3.1 Architecture 與 Pretrained 來源</h3>
+<table>
+  <caption>Table 1：兩個 Architecture Family 與 pretrained 權重來源</caption>
+  <tr><th>Architecture</th><th>Family 特色</th><th>Params（6 類）</th><th>Pretrained source（torchvision 0.22.1，ImageNet-1K）</th></tr>
+  <tr><td>ResNet18</td><td>Residual connection：以 skip connection 將輸入加回輸出，18 層</td><td class="n">11,179,590</td><td><code>ResNet18_Weights.IMAGENET1K_V1</code><br><code>https://download.pytorch.org/models/resnet18-f37072fd.pth</code></td></tr>
+  <tr><td>DenseNet121</td><td>Dense connectivity：每層接收前面所有層 feature map 的串接，121 層</td><td class="n">6,960,006</td><td><code>DenseNet121_Weights.IMAGENET1K_V1</code><br><code>https://download.pytorch.org/models/densenet121-a639ec97.pth</code></td></tr>
+</table>
+<p>兩個模型都把原本 1000 類的 ImageNet 分類層換成新的 6 類 Linear 層：ResNet18 的 <code>fc</code> 改為 Linear(512 → 6)，DenseNet121 的 <code>classifier</code> 改為 Linear(1024 → 6)。</p>
+
+<h3>3.2 Fine-tuning Strategy</h3>
+<ul>
+  <li><b>Feature Extraction</b>：凍結整個 pretrained backbone（<code>requires_grad = False</code>），只訓練新的分類層。訓練時整個網路維持 <code>eval()</code> 模式，使 BatchNorm 沿用 ImageNet 的 running mean / var，backbone 完全不被更新。訓練後以程式比對 checkpoint 與原始 ImageNet 權重：E1 的 120 個與 E3 的 725 個 backbone tensor 皆未改變，只有分類層的 weight 與 bias 改變。</li>
+  <li><b>Full Fine-tuning</b>：以 ImageNet 權重為起點，所有層都參與訓練。為避免一開始就大幅破壞 pretrained 特徵，learning rate 設為 Feature Extraction 的十分之一。</li>
+</ul>
+<table>
+  <caption>Table 2：各實驗的 frozen / trainable layers 與 learning rate</caption>
+  <tr><th>Exp</th><th>Architecture</th><th>Strategy</th><th>Frozen layers</th><th>Trainable layers</th><th>Trainable Params</th><th>Learning rate</th></tr>
+  <tr><td>E1</td><td>ResNet18</td><td>Feature Extraction</td><td><code>conv1</code>、<code>bn1</code>、<code>layer1</code>–<code>layer4</code></td><td><code>fc</code></td><td class="n">3,078</td><td class="n">0.001</td></tr>
+  <tr><td>E2</td><td>ResNet18</td><td>Full Fine-tuning</td><td>無</td><td>全部</td><td class="n">11,179,590</td><td class="n">0.0001</td></tr>
+  <tr><td>E3</td><td>DenseNet121</td><td>Feature Extraction</td><td><code>features</code></td><td><code>classifier</code></td><td class="n">6,150</td><td class="n">0.001</td></tr>
+  <tr><td>E4</td><td>DenseNet121</td><td>Full Fine-tuning</td><td>無</td><td>全部</td><td class="n">6,960,006</td><td class="n">0.0001</td></tr>
+</table>
+
+<h3>3.3 訓練設定與選模規則</h3>
+<table>
+  <caption>Table 3：四組實驗共同的訓練設定</caption>
+  <tr><th>項目</th><th>設定</th><th>項目</th><th>設定</th></tr>
+  <tr><td>Input size</td><td>224 × 224 × 3</td><td>Optimizer / Loss</td><td>Adam / CrossEntropyLoss</td></tr>
+  <tr><td>Epochs / Batch size</td><td>20 / 32</td><td>Weight decay</td><td>0</td></tr>
+  <tr><td>Random seed</td><td>42</td><td>Framework</td><td>PyTorch 2.7.1、torchvision 0.22.1</td></tr>
+  <tr><td>訓練裝置</td><td>Apple M2 Max（MPS）</td><td>Latency 量測裝置</td><td>Apple M2 Max CPU</td></tr>
+</table>
+<ul>
+  <li><b>選 epoch</b>：每組在 20 個 epoch 中選 validation Macro F1 最高者；若多個 epoch 同分，選 validation loss 最低者。該 epoch 的 <code>state_dict</code> 存為 checkpoint，報告中的指標都是重新載入該 checkpoint 後在 validation 上的結果。</li>
+  <li><b>選最終模型</b>：validation Macro F1 最高者；同分時依團隊規則選參數量較少者。</li>
+</ul>
+
+<h2>4. 結果</h2>
+<table>
+  <caption>Table 4：E1–E4 的 validation 結果（每組最佳 epoch）</caption>
+  <tr><th>Exp</th><th>Setting</th><th>Accuracy</th><th>Macro P</th><th>Macro R</th><th>Macro F1</th><th>Params</th><th>Size (MB)</th><th>Latency (ms)</th></tr>
+  <tr><td>E1</td><td>ResNet18 + Feature Extraction</td><td class="n">0.9926</td><td class="n">0.9927</td><td class="n">0.9926</td><td class="n">0.9926</td><td class="n">11,179,590</td><td class="n">42.71</td><td class="n">8.73</td></tr>
+  <tr><td>E2</td><td>ResNet18 + Full Fine-tuning</td><td class="n">1.0000</td><td class="n">1.0000</td><td class="n">1.0000</td><td class="n">1.0000</td><td class="n">11,179,590</td><td class="n">42.71</td><td class="n">9.45</td></tr>
+  <tr><td>E3</td><td>DenseNet121 + Feature Extraction</td><td class="n">1.0000</td><td class="n">1.0000</td><td class="n">1.0000</td><td class="n">1.0000</td><td class="n">6,960,006</td><td class="n">27.08</td><td class="n">30.99</td></tr>
+  <tr><td>E4</td><td>DenseNet121 + Full Fine-tuning</td><td class="n">1.0000</td><td class="n">1.0000</td><td class="n">1.0000</td><td class="n">1.0000</td><td class="n">6,960,006</td><td class="n">27.08</td><td class="n">34.30</td></tr>
+</table>
+<p>Size 為 checkpoint 檔案大小（bytes ÷ 1024²）。Latency 為 batch size 1、暖機 10 次後連續推論 100 次的平均，單位 ms / 張，只計模型推論、不含讀檔。</p>
+
+<h3>4.1 訓練過程</h3>
+<table>
+  <caption>Table 5：訓練過程摘要（取自各組 history）</caption>
+  <tr><th>Exp</th><th>第 1 個 epoch 的 val Macro F1</th><th>最早達到最高 val Macro F1 的 epoch</th><th>之後 val Macro F1 下降的 epoch</th><th>Best epoch</th><th>Best epoch 的 val loss</th></tr>
+  <tr><td>E1</td><td class="n">0.9664</td><td class="n">9</td><td>無</td><td class="n">20</td><td class="n">0.0304</td></tr>
+  <tr><td>E2</td><td class="n">0.9963</td><td class="n">2</td><td>4、5、19</td><td class="n">10</td><td class="n">0.0004</td></tr>
+  <tr><td>E3</td><td class="n">0.9740</td><td class="n">5</td><td>無</td><td class="n">20</td><td class="n">0.0218</td></tr>
+  <tr><td>E4</td><td class="n">0.9963</td><td class="n">2</td><td>4、10</td><td class="n">19</td><td class="n">0.0004</td></tr>
+</table>
+
+<figure>
+  <img src="../results/E1_curves.png" style="width: 82%">
+  <figcaption>Figure 1：E1（ResNet18 + Feature Extraction）的 Training / Validation Loss 與 Accuracy。</figcaption>
+</figure>
+<figure>
+  <img src="../results/E2_curves.png" style="width: 82%">
+  <figcaption>Figure 2：E2（ResNet18 + Full Fine-tuning）的 Training / Validation Loss 與 Accuracy。</figcaption>
+</figure>
+<figure>
+  <img src="../results/E3_curves.png" style="width: 82%">
+  <figcaption>Figure 3：E3（DenseNet121 + Feature Extraction）的 Training / Validation Loss 與 Accuracy。</figcaption>
+</figure>
+<figure>
+  <img src="../results/E4_curves.png" style="width: 82%">
+  <figcaption>Figure 4：E4（DenseNet121 + Full Fine-tuning）的 Training / Validation Loss 與 Accuracy。</figcaption>
+</figure>
+
+<h3>4.2 分析</h3>
+<ul>
+  <li><b>Strategy 的影響</b>：Full Fine-tuning 收斂最快，E2 與 E4 在第 1 個 epoch 的 validation Macro F1 都是 0.9963，第 2 個 epoch 就達到 1.0000。但因為所有參數都在更新，之後偶爾會掉回 1.0000 以下（Table 5），曲線也較不平穩（Figure 2、Figure 4）。Feature Extraction 只訓練分類層，起步較慢（E1 為 0.9664、E3 為 0.9740），但 validation 曲線平穩上升，達到最高分後沒有再下降。</li>
+  <li><b>Architecture 的影響</b>：在 Full Fine-tuning 下，兩個架構都達到 1.0000，無法區分。在 Feature Extraction 下，DenseNet121（E3）達到 1.0000，ResNet18（E1）為 0.9926，代表在不更新 backbone 時，DenseNet121 的 ImageNet 特徵已足以分開 6 類，ResNet18 的特徵則有 2 張分錯。不過差距只有 270 張中的 2 張，不宜過度解讀。</li>
+  <li><b>Overfitting 與收斂</b>：Feature Extraction（E1、E3）的 training 與 validation loss 每個 epoch 都在下降，第 20 個 epoch 仍是最低，表示可能尚未完全收斂；但 Macro F1 已經達到該組最高值，因此不影響本報告的選模結論。Full Fine-tuning 的 validation loss 從第 2 個 epoch 起就在低點附近上下波動（E2 介於 0.0004 與 0.0214 之間，E4 介於 0.0004 與 0.0203 之間），沒有持續上升的趨勢。四組在 validation 上都看不出明顯的 overfitting。</li>
+</ul>
+
+<figure>
+  <img src="../results/E3_cm.png" style="width: 62%">
+  <figcaption>Figure 5：最終模型 E3（DenseNet121 + Feature Extraction）在 validation 的 Confusion Matrix（列為真實類別、行為預測類別，數字為張數）。270 張全部分類正確。</figcaption>
+</figure>
+
+<h2>5. 錯誤案例分析</h2>
+<p>E2、E3、E4 在 validation 上沒有分錯的影像，只有 E1 分錯 2 張：一張 inclusion 被判成 pitted_surface，一張 scratches 被判成 inclusion（Figure 6）。</p>
+<figure>
+  <div class="errors">
+    <div><img src="../../FactoryVision_DataSet/STUDENT_PUBLIC/classification/validation/inclusion/VAL_0083.png">E1 分錯：<code>inclusion/VAL_0083</code><br>預測為 pitted_surface</div>
+    <div><img src="../../FactoryVision_DataSet/STUDENT_PUBLIC/classification/validation/inclusion/VAL_0046.png">真實類別範例<br><code>inclusion/VAL_0046</code></div>
+    <div><img src="../../FactoryVision_DataSet/STUDENT_PUBLIC/classification/validation/inclusion/VAL_0050.png">真實類別範例<br><code>inclusion/VAL_0050</code></div>
+    <div><img src="../../FactoryVision_DataSet/STUDENT_PUBLIC/classification/validation/pitted_surface/VAL_0136.png">預測類別範例<br><code>pitted_surface/VAL_0136</code></div>
+    <div><img src="../../FactoryVision_DataSet/STUDENT_PUBLIC/classification/validation/pitted_surface/VAL_0140.png">預測類別範例<br><code>pitted_surface/VAL_0140</code></div>
+    <div><img src="../../FactoryVision_DataSet/STUDENT_PUBLIC/classification/validation/scratches/VAL_0228.png">E1 分錯：<code>scratches/VAL_0228</code><br>預測為 inclusion</div>
+    <div><img src="../../FactoryVision_DataSet/STUDENT_PUBLIC/classification/validation/scratches/VAL_0226.png">真實類別範例<br><code>scratches/VAL_0226</code></div>
+    <div><img src="../../FactoryVision_DataSet/STUDENT_PUBLIC/classification/validation/scratches/VAL_0230.png">真實類別範例<br><code>scratches/VAL_0230</code></div>
+    <div><img src="../../FactoryVision_DataSet/STUDENT_PUBLIC/classification/validation/inclusion/VAL_0046.png">預測類別範例<br><code>inclusion/VAL_0046</code></div>
+    <div><img src="../../FactoryVision_DataSet/STUDENT_PUBLIC/classification/validation/inclusion/VAL_0050.png">預測類別範例<br><code>inclusion/VAL_0050</code></div>
+  </div>
+  <figcaption>Figure 6：E1 分錯的 2 張 validation 影像（最左），與真實類別、預測類別的範例對照。範例取該類別 validation 依檔名排序的第 1 與第 5 張，E1 對這些範例皆分類正確。</figcaption>
+</figure>
+<p>以下觀察來自檢視各類別部分 validation 影像（每類依檔名排序每隔 4 張取 1 張，共 10 張）：</p>
+<ul>
+  <li><b><code>inclusion/VAL_0083</code> → pitted_surface</b>：檢視的 inclusion 影像多為灰暗背景上的暗色細長斑點。這張的背景明顯較亮，瑕疵是許多分散的小暗點，整體外觀接近 pitted_surface 常見的亮底點狀紋理。</li>
+  <li><b><code>scratches/VAL_0228</code> → inclusion</b>：檢視的 scratches 影像多為明顯的垂直亮色線條。這張同樣是垂直亮線，但線條細而淡、與背景對比低；inclusion 也常見垂直的細長條紋（但為暗色）。推測 E1 抓到了「垂直細長」的形狀，但在對比低時沒有分辨出亮暗差異。</li>
+  <li><b>可能原因</b>：E1 的 backbone 完全沿用 ImageNet 特徵，沒有針對鋼材紋理調整，只靠一層 Linear 分類，對背景亮度、線條對比等外觀差異較敏感。同樣是 ResNet18，Full Fine-tuning（E2）調整 backbone 後這兩張都分對；DenseNet121 即使凍結 backbone（E3）也分對。</li>
+  <li><b>限制</b>：最終模型 E3 在 validation 上沒有錯誤，因此無法從 validation 進一步分析它的弱點。</li>
+</ul>
+
+<h2>6. Deployment Analysis</h2>
+<table>
+  <caption>Table 6：分類表現與部署成本</caption>
+  <tr><th>Exp</th><th>Setting</th><th>Macro F1</th><th>Params</th><th>Trainable Params</th><th>Size (MB)</th><th>Latency (ms)</th></tr>
+  <tr><td>E1</td><td>ResNet18 + Feature Extraction</td><td class="n">0.9926</td><td class="n">11,179,590</td><td class="n">3,078</td><td class="n">42.71</td><td class="n">8.73</td></tr>
+  <tr><td>E2</td><td>ResNet18 + Full Fine-tuning</td><td class="n">1.0000</td><td class="n">11,179,590</td><td class="n">11,179,590</td><td class="n">42.71</td><td class="n">9.45</td></tr>
+  <tr><td>E3</td><td>DenseNet121 + Feature Extraction</td><td class="n">1.0000</td><td class="n">6,960,006</td><td class="n">6,150</td><td class="n">27.08</td><td class="n">30.99</td></tr>
+  <tr><td>E4</td><td>DenseNet121 + Full Fine-tuning</td><td class="n">1.0000</td><td class="n">6,960,006</td><td class="n">6,960,006</td><td class="n">27.08</td><td class="n">34.30</td></tr>
+</table>
+<ul>
+  <li><b>分類表現</b>：E2、E3、E4 的 validation Macro F1 都是 1.0000。270 張 validation 已無法區分這三組，因此部署選擇主要取決於成本。</li>
+  <li><b>模型大小</b>：DenseNet121 的參數量（6,960,006）與 checkpoint（27.08 MB）都小於 ResNet18（11,179,590、42.71 MB），儲存與傳輸成本較低。</li>
+  <li><b>推論時間</b>：DenseNet121 雖然參數較少，CPU 推論卻較慢（E3 為 30.99 ms、E4 為 34.30 ms；E1 為 8.73 ms、E2 為 9.45 ms）。可能原因是 DenseNet121 層數較多，且每層都要串接前面所有層的 feature map，在 batch size 1 時運算與記憶體存取較多。因此參數量少不代表推論快。</li>
+  <li><b>訓練與維護成本</b>：Feature Extraction 只訓練 3,078（ResNet18）或 6,150（DenseNet121）個參數，backbone 維持 ImageNet 權重，日後重新訓練或新增瑕疵類別時成本較低；Full Fine-tuning 需要更新全部參數，訓練時需要較多運算與記憶體。本 Stage 未記錄各組的訓練時間。</li>
+  <li><b>部署情境</b>：若產線最重視單張影像在 CPU 上的處理速度，ResNet18 + Full Fine-tuning（E2）較適合；若重視模型檔案大小、訓練穩定度與維護成本，DenseNet121 + Feature Extraction（E3）較適合。</li>
+  <li class="todo"><b>TODO</b>：上表 Latency 是在 Apple M2 Max CPU 上量測，重複執行時數值會有波動。待團隊確認是否在 RTX 2060 上以相同條件重新量測，再更新本表與 <code>results/*.json</code>。</li>
+</ul>
+
+<h2>7. Final Model Decision</h2>
+<p>最終模型為 <b>E3：DenseNet121 + Feature Extraction</b>，存為 <code>stage2_model.pth</code>（即 <code>checkpoints/E3.pth</code>，27.08 MB），設定記錄在 <code>config.json</code>。選擇理由：</p>
+<ol>
+  <li>Validation Macro F1 為 1.0000，與 E2、E4 同為最高。</li>
+  <li>依團隊選模規則，同分時選參數量較少者。DenseNet121 的參數量（6,960,006）少於 ResNet18（11,179,590），checkpoint 也較小。</li>
+  <li>E3 與 E4 的參數量相同。E3 只訓練 6,150 個參數，backbone 保持 ImageNet 權重；在只有 1,260 張訓練影像的情況下，較不容易 overfit。它的 validation 曲線在達到 1.0000 後沒有再下降，比 E4 平穩，CPU 推論時間也較短（30.99 ms 對 34.30 ms）。</li>
+</ol>
+<p>代價是 E3 的 CPU 推論時間高於 ResNet18（E1 為 8.73 ms、E2 為 9.45 ms）。若部署環境對單張推論速度有嚴格要求，E2 是替代方案。</p>
+
+<h2>8. 限制</h2>
+<ul>
+  <li>三組實驗的 validation 指標都是 1.0000，270 張 validation 影像無法區分它們的泛化能力差異；validation 中還有一張與 train 重複的影像。</li>
+  <li>每組只用 seed 42 訓練一次；MPS 運算不保證每次結果完全相同，重跑的數字可能有些微差異。本報告數字以 <code>results/*.json</code> 為準。</li>
+  <li>Feature Extraction 的 best epoch 為最後一個 epoch，可能尚未完全收斂。</li>
+  <li>Latency 只在 Apple M2 Max CPU 上量測，未記錄訓練時間。</li>
+</ul>
+<p>重現方式（環境、指令與參數）見 <code>README.md</code>。</p>
+
+</body>
+</html>
