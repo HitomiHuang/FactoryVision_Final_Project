@@ -1,8 +1,8 @@
 {
   "team_id": "Team05",
   "stage": 1,
-  "model_name": null,
-  "input_size": null,
+  "model_name": "SimpleCNN",
+  "input_size": 128,
   "class_order": [
     "crazing",
     "inclusion",
@@ -11,9 +11,11 @@
     "rolled_in_scale",
     "scratches"
   ],
-  "normalization_mean": null,
-  "normalization_std": null,
+  "normalization_mean": [0.5070540018850411],
+  "normalization_std": [0.2110269081061105],
   "seed": 42,
-  "improvement_methods": null,
+  "improvement_methods": {
+    "dropout": {"p": 0.5}
+  },
   "checkpoint_file": "stage1_model.pth"
 }

@@ -88,8 +88,8 @@
   "trainable_params": null,
   "checkpoint_mb": 2.4886655807495117,
   "checkpoint_sha256": "9a5912a3c33d6a4131061f8f9011f7656f9e6d53a30a45ea2568dded00245fe6",
-  "latency_ms": 0.4463949999990291,
-  "latency_device": "CPU (Intel64 Family 6 Model 165 Stepping 2, GenuineIntel)",
+  "latency_ms": 0.3338639999856241,
+  "latency_device": "CPU (Intel64 Family 6 Model 151 Stepping 5, GenuineIntel)",
   "history": {
     "train_loss": [],
     "val_loss": [],
